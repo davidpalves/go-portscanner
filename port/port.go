@@ -16,8 +16,8 @@ type ScanResult struct {
 	State string
 }
 
-var sem = semaphore.NewWeighted(512)
-var tmpl string = `{{ blue "Ports scanned:" }} {{ bar . "[" "#" ">" "." "]" | green}} {{counters .}} - {{etime . "Elapsed time %s"}}`
+var sem = semaphore.NewWeighted(1)
+var tmpl string = `{{ yellow "Ports scanned:" }} {{ bar . "[" "#" ">" "." "]" | green}} {{percent .}} - {{rtime . "Remaining time: %s"}}`
 
 func ScanPort(protocol, hostname string, port int) ScanResult {
 	result := ScanResult{Port: port}
@@ -54,10 +54,11 @@ func InitialScan(hostname string, runUDP bool) []ScanResult {
 				}
 			}(i)
 		}
+		wg.Wait()
 		bar.Finish()
 	}
 
-	bar := pb.ProgressBarTemplate(tmpl).Start64(limit)
+	bar := pb.ProgressBarTemplate(tmpl).Start(limit)
 
 	for i := 0; i <= limit; i++ {
 		wg.Add(1)
@@ -73,6 +74,7 @@ func InitialScan(hostname string, runUDP bool) []ScanResult {
 		}(i)
 	}
 
+	wg.Wait()
 	bar.Finish()
 
 	return results
@@ -99,6 +101,8 @@ func WideScan(hostname string, runUDP bool) []ScanResult {
 				}
 			}(i)
 		}
+
+		wg.Wait()
 		bar.Finish()
 	}
 
@@ -118,6 +122,7 @@ func WideScan(hostname string, runUDP bool) []ScanResult {
 		}(i)
 	}
 
+	wg.Wait()
 	bar.Finish()
 
 	return results
