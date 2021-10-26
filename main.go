@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/davidpalves/go-portscanner/port"
 )
 
 func main() {
 	fmt.Println("Scanneando Porta")
-	open := port.InitialScan("tcp", "localhost", 8080)
-
-	fmt.Printf("porta aberta: %t\n", open)
+	results := port.InitialScan("localhost")
+	fmt.Println(results)
 
 }
