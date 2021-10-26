@@ -17,6 +17,7 @@ type ScanResult struct {
 }
 
 var sem = semaphore.NewWeighted(512)
+var tmpl string = `{{ blue "Ports scanned:" }} {{ bar . "[" "#" ">" "." "]" | green}} {{counters .}} - {{etime . "Elapsed time %s"}}`
 
 func ScanPort(protocol, hostname string, port int) ScanResult {
 	result := ScanResult{Port: port}
@@ -39,13 +40,13 @@ func InitialScan(hostname string, runUDP bool) []ScanResult {
 	const limit = 1024
 
 	if runUDP {
-	for i := 0; i <= 1024; i++ {
-		results = append(results, ScanPort("tcp", hostname, i))
+		bar := pb.ProgressBarTemplate(tmpl).Start64(limit)
 		for i := 0; i <= limit; i++ {
 			wg.Add(1)
 			sem.Acquire(context.TODO(), 1)
 			go func(i int) {
 				result = ScanPort("udp", hostname, i)
+				defer bar.Increment()
 				defer sem.Release(1)
 				defer wg.Done()
 				if result.State == "Open" {
@@ -53,16 +54,17 @@ func InitialScan(hostname string, runUDP bool) []ScanResult {
 				}
 			}(i)
 		}
+		bar.Finish()
 	}
 
-	for i := 0; i <= 1024; i++ {
-		results = append(results, ScanPort("udp", hostname, i))
+	bar := pb.ProgressBarTemplate(tmpl).Start64(limit)
 
 	for i := 0; i <= limit; i++ {
 		wg.Add(1)
 		sem.Acquire(context.TODO(), 1)
 		go func(i int) {
 			result = ScanPort("tcp", hostname, i)
+			defer bar.Increment()
 			defer sem.Release(1)
 			defer wg.Done()
 			if result.State == "Open" {
@@ -71,6 +73,7 @@ func InitialScan(hostname string, runUDP bool) []ScanResult {
 		}(i)
 	}
 
+	bar.Finish()
 
 	return results
 }
@@ -99,14 +102,14 @@ func WideScan(hostname string, runUDP bool) []ScanResult {
 		bar.Finish()
 	}
 
-	for i := 0; i <= 49152; i++ {
-		results = append(results, ScanPort("tcp", hostname, i))
+	bar := pb.ProgressBarTemplate(tmpl).Start64(limit)
 
 	for i := 0; i <= limit; i++ {
 		wg.Add(1)
 		sem.Acquire(context.TODO(), 1)
 		go func(i int) {
 			result = ScanPort("tcp", hostname, i)
+			defer bar.Increment()
 			defer sem.Release(1)
 			defer wg.Done()
 			if result.State == "Open" {
@@ -115,6 +118,7 @@ func WideScan(hostname string, runUDP bool) []ScanResult {
 		}(i)
 	}
 
+	bar.Finish()
 
 	return results
 }
