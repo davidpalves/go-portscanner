@@ -16,7 +16,7 @@ type ScanResult struct {
 	State string
 }
 
-var sem = semaphore.NewWeighted(1)
+var sem = semaphore.NewWeighted(32)
 var tmpl string = `{{ yellow "Ports scanned:" }} {{ bar . "[" "#" ">" "." "]" | green}} {{percent .}} - {{rtime . "Remaining time: %s"}}`
 
 func ScanPort(protocol, hostname string, port int) ScanResult {
