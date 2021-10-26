@@ -24,3 +24,14 @@ func scanPort(protocol, hostname string, port int) ScanResult {
 	result.State = "Open"
 	return result
 }
+
+func InitialScan(hostname string) []ScanResult {
+
+	var results []ScanResult
+
+	for i := 0; i <= 1024; i++ {
+		results = append(results, scanPort("tcp", hostname, i))
+	}
+
+	return results
+}
