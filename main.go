@@ -25,7 +25,7 @@ func main() {
 	for _, result := range results {
 		fmt.Printf("- %s:%s\n", blue(hostname), red(result.Port))
 	}
-	yellow.Printf("\nElapsed time: %.2f", elapsedTime)
+	yellow.Printf("\nElapsed time: %.2fs", elapsedTime)
 	fmt.Println("\n")
 
 	startTime = time.Now()
@@ -36,6 +36,6 @@ func main() {
 	for _, result := range results {
 		fmt.Printf("- %s:%s\n", blue(hostname), red(result.Port))
 	}
-	yellow.Printf("\nElapsed time: %.2f", elapsedTime)
+	yellow.Printf("\nElapsed time: %.2fs", elapsedTime)
 	fmt.Println("\n")
 }
