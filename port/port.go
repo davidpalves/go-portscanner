@@ -75,8 +75,6 @@ func StartScan(config ScanConfig) []ScanResult {
 	var result ScanResult
 	var sem = semaphore.NewWeighted(config.ConcurrentOperators)
 
-	fmt.Printf("Running scan with %d\n", config.ConcurrentOperators)
-
 	wg := sync.WaitGroup{}
 
 	bar := pb.ProgressBarTemplate(tmpl).Start(config.HighestPort)
