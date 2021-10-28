@@ -22,7 +22,7 @@ var tmpl string = `{{ yellow "Ports scanned:" }} {{ bar . "[" "#" ">" "." "]" | 
 func ScanPort(protocol, hostname string, port int) ScanResult {
 	result := ScanResult{Port: port}
 	address := hostname + ":" + strconv.Itoa(port)
-	conn, err := net.DialTimeout(protocol, address, 60*time.Second)
+	conn, err := net.DialTimeout(protocol, address, 500*time.Millisecond)
 
 	if err != nil {
 		result.State = "Closed"
@@ -33,39 +33,22 @@ func ScanPort(protocol, hostname string, port int) ScanResult {
 	return result
 }
 
-func StartScan(hostname string, runUDP bool) []ScanResult {
+func StartScan(hostname string, protocol string, lowestPort int, highestPort int) []ScanResult {
 	var results []ScanResult
 	var result ScanResult
 	wg := sync.WaitGroup{}
 
-	const limit = 49152
-
-	if runUDP {
-		bar := pb.ProgressBarTemplate(tmpl).Start64(limit)
-		for i := 0; i <= limit; i++ {
-			wg.Add(1)
-			sem.Acquire(context.TODO(), 1)
-			go func(i int) {
-				result = ScanPort("udp", hostname, i)
-				defer sem.Release(1)
-				defer wg.Done()
-				if result.State == "Open" {
-					results = append(results, result)
-				}
-			}(i)
-		}
-
-		wg.Wait()
-		bar.Finish()
+	if protocol == "" {
+		protocol = "tcp"
 	}
 
-	bar := pb.ProgressBarTemplate(tmpl).Start64(limit)
+	bar := pb.ProgressBarTemplate(tmpl).Start(highestPort)
 
-	for i := 0; i <= limit; i++ {
+	for i := lowestPort; i <= highestPort; i++ {
 		wg.Add(1)
 		sem.Acquire(context.TODO(), 1)
 		go func(i int) {
-			result = ScanPort("tcp", hostname, i)
+			result = ScanPort(protocol, hostname, i)
 			defer bar.Increment()
 			defer sem.Release(1)
 			defer wg.Done()
