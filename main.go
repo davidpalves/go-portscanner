@@ -26,11 +26,12 @@ func printResult(hostname string, results []port.ScanResult, elapsedTime float64
 }
 
 func main() {
-	var hostname string = "127.0.0.1"
+
+	var config = port.NewScanConfig("127.0.0.1", "tcp", 0, 49152, 32)
 
 	startTime := time.Now()
-	results := port.StartScan(hostname, "tcp", 0, 49152)
+	results := port.StartScan(config)
 	elapsedTime := time.Since(startTime).Seconds()
 
-	printResult(hostname, results, elapsedTime)
+	printResult(config.Hostname, results, elapsedTime)
 }
