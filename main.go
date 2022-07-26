@@ -28,7 +28,7 @@ func printResult(hostname string, results []port.ScanResult, elapsedTime float64
 
 func main() {
 	hostname := flag.String("hostname", "127.0.0.1", "Host that will be scanned. E.g.: 127.0.0.1")
-	protocol := flag.String("protocol", "tcp", "Protocol used on the scan. E.g.: tpc")
+	protocol := flag.String("protocol", "tcp", "Protocol used on the scan. E.g.: tcp")
 	lowestPort := flag.Int("lowest-port", 0, "Lowest port used on the scan. E.g.: 0")
 	highestPort := flag.Int("highest-port", 65535, "Highest port used on the scan. E.g.: 65535")
 	concurrentOperators := flag.Int64("concurrent-operations", 32, "How many operations will occur concurrently. E.g.: 32")

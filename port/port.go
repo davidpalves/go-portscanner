@@ -25,7 +25,7 @@ type ScanConfig struct {
 	ConcurrentOperators int64
 }
 
-var tmpl string = `{{ yellow "Ports scanned:" }} {{ bar . "[" "#" ">" "." "]" | green}} {{percent .}} - {{rtime . "Remaining time: %s"}}`
+var tmpl string = `{{ yellow "Ports scanned:" }} {{ bar . "[" "-" ">" "." "]" | green}} {{percent .}} - {{rtime . "Remaining time: %s"}}`
 
 func NewScanConfig(hostname, protocol string, lowestPort, highestPort int, concurrentOperators int64) ScanConfig {
 	fmt.Printf("Initializing scan configuration")
